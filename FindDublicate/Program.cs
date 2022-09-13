@@ -1,46 +1,83 @@
 ﻿using System.Security.Cryptography;
 
-
-string FullPath = "D:/Models material/Substance Painter Alpha";
-
-
-static List<string> GetAllFilesInDirectory(string targetDirectory, List<string> list = null)
+namespace FindDublicate
 {
-
-    if (list == null)
+    public static class TestClass
     {
-        list = new List<string>();
+        static void Main(string[] args)
+        {
+            string FullPath = "D:/User/media";
+
+
+            static List<string> GetAllFilesInDirectory(string targetDirectory, List<string> list = null)
+            {
+
+                if (list == null)
+                {
+                    list = new List<string>();
+                }
+
+
+                string[] subdirectoryEntries = Directory.GetDirectories(targetDirectory);
+
+                foreach (string subdirectory in subdirectoryEntries)
+                {
+                    list.Add(subdirectory);
+                    GetAllFilesInDirectory(subdirectory, list);
+                }
+
+                if (list.Count == 0)
+                {
+                    list.Add($"{targetDirectory}");
+                }
+
+
+                return list;
+            }
+
+            List<string> AllFolder = GetAllFilesInDirectory(FullPath);
+            Console.WriteLine($"Find {AllFolder.Count} Folder");
+
+
+
+            var watch = new System.Diagnostics.Stopwatch();
+
+            watch.Start();
+
+
+            List<FileDetails> finalDetails = new List<FileDetails>();
+            List<string> Dublicate = new List<string>();
+            finalDetails.Clear();
+
+            foreach (string file in AllFolder)
+            {
+                var fileLists = Directory.GetFiles(file);
+                foreach (var item in fileLists)
+                {
+                    using (var fs = new FileStream(item, FileMode.Open, FileAccess.Read))
+                    {
+                        finalDetails.Add(new FileDetails()
+                        {
+                            FileName = item,
+                            FileHash = BitConverter.ToString(SHA1.Create().ComputeHash(fs)),
+                        });
+                    }
+                }
+
+                var similarList = finalDetails.GroupBy(f => f.FileHash)
+                    .Select(g => new { FileHash = g.Key, Files = g.Select(z => z.FileName).ToList() });
+
+                Dublicate.AddRange(similarList.SelectMany(f => f.Files.Skip(1)).ToList());
+                Console.WriteLine("Total duplicate files - {0}", Dublicate.Count);
+
+
+                watch.Stop();
+                TimeSpan timeSpan = watch.Elapsed;
+                Console.WriteLine($"Execution Time: {timeSpan.Seconds} s and {timeSpan.Milliseconds} milliseconds");
+            }
+        }
     }
-
-
-    string[] fileEntries = Directory.GetFiles(targetDirectory);
-
-    foreach (string fileName in fileEntries)
-    {
-        list.Add(fileName);
-    }
-
-    string[] subdirectoryEntries = Directory.GetDirectories(targetDirectory);
-
-    foreach (string subdirectory in subdirectoryEntries)
-        GetAllFilesInDirectory(subdirectory, list);
-
-    return list;
 }
-
-List<string> AllFile = GetAllFilesInDirectory(FullPath);
-Console.WriteLine($"Find {AllFile.Count} files");
-
-var watch = new System.Diagnostics.Stopwatch();
-watch.Start();
-
-
-
-
-
-
-watch.Stop();
-Console.WriteLine($"Execution Time: {watch} s");
 
 
 
