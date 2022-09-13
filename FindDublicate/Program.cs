@@ -6,7 +6,14 @@ namespace FindDublicate
     {
         static void Main(string[] args)
         {
-            string FullPath = "D:/Video/WingFox - Creating Realistic Hair in Blender 2.8 for Cycles Render by Maria Anikina (2020) [RUS + ENG Sub]";
+            Console.WriteLine("Type folder path:");
+            string FullPath = Console.ReadLine();
+            if(FullPath is null)
+            {
+                FullPath = "";
+                Console.WriteLine("Incorect path or not path");
+                return;
+            }
 
 
             static List<string> GetAllFilesInDirectory(string targetDirectory, List<string> list = null)
