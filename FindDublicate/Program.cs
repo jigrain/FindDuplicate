@@ -6,7 +6,7 @@ namespace FindDublicate
     {
         static void Main(string[] args)
         {
-            string FullPath = "D:/User/media";
+            string FullPath = "D:/Video/WingFox - Creating Realistic Hair in Blender 2.8 for Cycles Render by Maria Anikina (2020) [RUS + ENG Sub]";
 
 
             static List<string> GetAllFilesInDirectory(string targetDirectory, List<string> list = null)
@@ -46,7 +46,7 @@ namespace FindDublicate
 
 
             List<FileDetails> finalDetails = new List<FileDetails>();
-            List<string> Dublicate = new List<string>();
+            List<string> Duplicate = new List<string>();
             finalDetails.Clear();
 
             foreach (string file in AllFolder)
@@ -63,18 +63,27 @@ namespace FindDublicate
                         });
                     }
                 }
-
+            }
                 var similarList = finalDetails.GroupBy(f => f.FileHash)
                     .Select(g => new { FileHash = g.Key, Files = g.Select(z => z.FileName).ToList() });
 
-                Dublicate.AddRange(similarList.SelectMany(f => f.Files.Skip(1)).ToList());
-                Console.WriteLine("Total duplicate files - {0}", Dublicate.Count);
+                Duplicate.AddRange(similarList.SelectMany(f => f.Files.Skip(1)).ToList());
 
 
                 watch.Stop();
+
+                Console.WriteLine("Total duplicate files - {0}", Duplicate.Count);
+
+                Console.WriteLine("Duplicate list - \n");
+                foreach (var item in Duplicate)
+                {
+                    Console.WriteLine(item + "\n");
+                    FileInfo fi = new FileInfo(item);
+                }
+
                 TimeSpan timeSpan = watch.Elapsed;
                 Console.WriteLine($"Execution Time: {timeSpan.Seconds} s and {timeSpan.Milliseconds} milliseconds");
-            }
+            
         }
     }
 }
